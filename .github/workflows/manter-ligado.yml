@@ -1,0 +1,22 @@
+name: Manter o robô ligado
+
+# O GitHub desliga robôs agendados depois de 60 dias sem atividade no repositório.
+# Este passo faz um registro vazio todo dia 1º para o robô do Inter nunca parar.
+on:
+  schedule:
+    - cron: "17 12 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  manter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit --allow-empty -m "Mantém o robô do Inter ligado ($(date -u +%Y-%m-%d))"
+          git push
