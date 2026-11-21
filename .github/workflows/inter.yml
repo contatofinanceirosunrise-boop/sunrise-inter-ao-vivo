@@ -1,0 +1,34 @@
+name: Inter ao vivo
+
+on:
+  schedule:
+    # A cada 5 minutos, 24 horas por dia (o GitHub às vezes atrasa alguns minutos)
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+    inputs:
+      dias:
+        description: "Quantos dias para trás ler"
+        default: "3"
+
+concurrency:
+  group: inter-ao-vivo
+  cancel-in-progress: false
+
+jobs:
+  sincronizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m pip install --quiet requests
+      - run: python3 sync_inter.py
+        env:
+          INTER_CLIENT_ID: ${{ secrets.INTER_CLIENT_ID }}
+          INTER_CLIENT_SECRET: ${{ secrets.INTER_CLIENT_SECRET }}
+          INTER_CERT: ${{ secrets.INTER_CERT }}
+          INTER_KEY: ${{ secrets.INTER_KEY }}
+          INTER_CONTA: ${{ secrets.INTER_CONTA }}
+          PLANILHA_URL: ${{ secrets.PLANILHA_URL }}
+          PLANILHA_TOKEN: ${{ secrets.PLANILHA_TOKEN }}
+          DIAS: ${{ github.event.inputs.dias || '3' }}
+          DESDE: "2026-11-21"
