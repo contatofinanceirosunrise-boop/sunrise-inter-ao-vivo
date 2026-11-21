@@ -28,6 +28,11 @@ def contraparte(t):
 
 
 def main():
+    faltam = [n for n in ("INTER_CLIENT_ID", "INTER_CLIENT_SECRET", "INTER_CERT", "INTER_KEY", "PLANILHA_URL", "PLANILHA_TOKEN")
+              if not os.environ.get(n, "").strip()]
+    if faltam:
+        print("Aguardando os segredos no GitHub: " + ", ".join(faltam) + ". Nada foi lido.")
+        return
     cid, sec = env("INTER_CLIENT_ID"), env("INTER_CLIENT_SECRET")
     cert, key = env("INTER_CERT"), env("INTER_KEY")
     conta = env("INTER_CONTA", obrigatorio=False)
