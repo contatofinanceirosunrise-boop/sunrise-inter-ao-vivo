@@ -4,6 +4,7 @@ Só LÊ (escopo extrato.read). As chaves ficam nos segredos do GitHub; nada é i
 """
 import datetime as dt
 import os
+import re
 import sys
 import tempfile
 
@@ -82,11 +83,14 @@ def main():
         if desde and data < desde:
             continue
         ident = t.get("idTransacao") or f"{data}|{t.get('valor')}|{t.get('descricao', '')}"
+        # Hora do movimento no Inter (horário de Brasília), para o painel ordenar do mais recente ao mais antigo.
+        inclusao = str(t.get("dataInclusao") or "").strip()
+        quando = inclusao.replace("T", " ")[:19] if re.search(r"\d{2}:\d{2}", inclusao) else ""
         linhas.append({
             "id": "inter:" + str(ident), "data": data, "tipo": t.get("tipoTransacao", ""), "operacao": t.get("tipoOperacao", ""),
             "valor": sinal * float(t.get("valor") or 0),
             "titulo": " - ".join(x for x in (str(t.get("titulo") or "").strip(), contraparte(t) or str(t.get("descricao") or "").strip()) if x),
-            "descricao": t.get("descricao", ""), "contraparte": contraparte(t)})
+            "descricao": t.get("descricao", ""), "contraparte": contraparte(t), "quando": quando})
 
     r = requests.post(url, timeout=60, json={
         "token": token, "conta": "Inter", "saldo": saldo, "transacoes": linhas,
